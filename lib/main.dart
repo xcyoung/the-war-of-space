@@ -9,7 +9,7 @@ void main() {
   runApp(GameWidget(game: Game()));
 }
 
-class Game extends FlameGame with HasDraggables {
+class Game extends FlameGame with HasDraggables, HasCollisionDetection {
   @override
   Future<void> onLoad() async {
     final ParallaxComponent parallax = await loadParallaxComponent(

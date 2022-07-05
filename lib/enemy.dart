@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:the_war_of_space/bullet.dart';
+import 'package:the_war_of_space/player.dart';
 
 class EnemyCreator extends PositionComponent with HasGameRef {
   late Timer _createTimer;
@@ -42,11 +44,20 @@ class EnemyCreator extends PositionComponent with HasGameRef {
   }
 }
 
-class Enemy1 extends SpriteAnimationComponent with HasGameRef {
+class Enemy1 extends SpriteAnimationComponent
+    with HasGameRef, CollisionCallbacks {
   Enemy1({required Vector2 initPosition, required Vector2 size})
       : super(position: initPosition, size: size);
 
   int life = 1;
+
+  @override
+  CollisionCallback<PositionComponent>? get onCollisionCallback =>
+      (Set<Vector2> intersectionPoints, PositionComponent other) {
+      if (other is Bullet1 || other is Player) {
+        removeFromParent();
+      }
+  };
 
   @override
   Future<void> onLoad() async {
