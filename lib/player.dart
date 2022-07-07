@@ -1,14 +1,27 @@
 import 'dart:async';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:the_war_of_space/bullet.dart';
 
-class Player extends SpriteAnimationComponent with HasGameRef, Draggable {
+import 'enemy.dart';
+
+class Player extends SpriteAnimationComponent with HasGameRef, Draggable, CollisionCallbacks {
   Player({required Vector2 initPosition, required Vector2 size})
       : super(position: initPosition, size: size);
 
   late Timer _shootingTimer;
+
+  @override
+  CollisionCallback<PositionComponent>? get onCollisionCallback =>
+          (Set<Vector2> intersectionPoints, PositionComponent other) {
+        if (other is Enemy1) {
+          EffectController ctrl = NoiseEffectController(duration: 1, frequency: 30);
+          Effect effect = MoveByEffect(Vector2(4, 0), ctrl);
+          add(effect);
+        }
+      };
 
   @override
   Future<void> onLoad() async {
