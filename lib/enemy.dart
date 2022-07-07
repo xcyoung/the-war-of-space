@@ -54,10 +54,10 @@ class Enemy1 extends SpriteAnimationComponent
   @override
   CollisionCallback<PositionComponent>? get onCollisionCallback =>
       (Set<Vector2> intersectionPoints, PositionComponent other) {
-      if (other is Bullet1 || other is Player) {
-        removeFromParent();
-      }
-  };
+        if (other is Bullet1 || other is Player) {
+          removeFromParent();
+        }
+      };
 
   @override
   Future<void> onLoad() async {

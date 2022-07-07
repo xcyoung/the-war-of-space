@@ -64,8 +64,7 @@ class Player extends SpriteAnimationComponent with HasGameRef, Draggable {
   }
 
   void _addBullet() {
-    final maxRange = position.y;
-    final Bullet1 bullet1 = Bullet1(maxRange: maxRange);
+    final Bullet1 bullet1 = Bullet1();
     bullet1.size = Vector2(5, 11);
     bullet1.priority = 1;
     priority = 2;

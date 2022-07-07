@@ -1,13 +1,19 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:the_war_of_space/enemy.dart';
 
 class Bullet1 extends SpriteAnimationComponent with CollisionCallbacks {
   double speed = 200;
-  final double maxRange;
 
-  double _length = 0;
+  Bullet1() : super();
 
-  Bullet1({required this.maxRange}) : super();
+  @override
+  CollisionCallback<PositionComponent>? get onCollisionCallback =>
+      (Set<Vector2> intersectionPoints, PositionComponent other) {
+        if (other is Enemy1) {
+          removeFromParent();
+        }
+      };
 
   @override
   Future<void> onLoad() async {
@@ -25,10 +31,9 @@ class Bullet1 extends SpriteAnimationComponent with CollisionCallbacks {
     // TODO: implement update
     super.update(dt);
     Vector2 ds = Vector2(0, -1) * speed * dt;
-    _length += ds.length;
+
     position.add(ds);
-    if (_length > maxRange) {
-      _length = 0;
+    if (position.y < 0) {
       removeFromParent();
     }
   }
