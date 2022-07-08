@@ -6,8 +6,6 @@ import 'package:flame/events.dart';
 import 'package:flutter/material.dart' show Colors, Offset;
 import 'package:the_war_of_space/bullet.dart';
 
-import 'enemy.dart';
-
 class Player extends SpriteAnimationComponent
     with HasGameRef, Draggable, CollisionCallbacks {
   Player({required Vector2 initPosition, required Vector2 size})
@@ -16,19 +14,9 @@ class Player extends SpriteAnimationComponent
   late Timer _shootingTimer;
 
   @override
-  CollisionCallback<PositionComponent>? get onCollisionCallback =>
-      (Set<Vector2> intersectionPoints, PositionComponent other) {
-        if (other is Enemy1) {
-          removeAll(children.whereType<MoveEffect>());
-          add(MoveByEffect(Vector2(4, 0),
-              NoiseEffectController(duration: 0.5, frequency: 20)));
-          add(ColorEffect(Colors.white, const Offset(0.0, 0.5),
-              EffectController(duration: 0.25, reverseDuration: 0.25)));
-        }
-      };
-
-  @override
   Future<void> onLoad() async {
+    priority = 100;
+
     List<Sprite> sprites = [];
     for (int i = 1; i <= 2; i++) {
       sprites.add(await Sprite.load('player/me$i.png'));
@@ -80,11 +68,25 @@ class Player extends SpriteAnimationComponent
     return true;
   }
 
+  void loss() {
+    removeAll(children.whereType<ColorEffect>());
+    removeAll(children.whereType<MoveByEffect>());
+
+    ColorEffect collisionColorEffect = ColorEffect(
+        Colors.white,
+        const Offset(0.0, 0.5),
+        EffectController(duration: 0.25, reverseDuration: 0.25));
+    MoveByEffect collisionNoiseEffect = MoveByEffect(
+        Vector2(4, 0), NoiseEffectController(duration: 0.5, frequency: 20));
+
+    add(collisionNoiseEffect);
+    add(collisionColorEffect);
+  }
+
   void _addBullet() {
     final Bullet1 bullet1 = Bullet1();
     bullet1.size = Vector2(5, 11);
     bullet1.priority = 1;
-    priority = 2;
     bullet1.position = Vector2(position.x + size.x / 2, position.y);
     gameRef.add(bullet1);
   }

@@ -47,26 +47,29 @@ class EnemyCreator extends PositionComponent with HasGameRef {
 class Enemy1 extends SpriteAnimationComponent
     with HasGameRef, CollisionCallbacks {
   Enemy1({required Vector2 initPosition, required Vector2 size})
-      : super(position: initPosition, size: size);
+      : super(position: initPosition, size: size, removeOnFinish: true);
+
+  bool get destroyed => isRemoving || playing;
 
   int life = 1;
-
-  @override
-  CollisionCallback<PositionComponent>? get onCollisionCallback =>
-      (Set<Vector2> intersectionPoints, PositionComponent other) {
-        if (other is Bullet1 || other is Player) {
-          removeFromParent();
-        }
-      };
 
   @override
   Future<void> onLoad() async {
     List<Sprite> sprites = [];
     sprites.add(await Sprite.load('enemy/enemy1.png'));
-    final spriteAnimation = SpriteAnimation.spriteList(sprites, stepTime: 0.15);
+    for (int i = 1; i <= 4; i++) {
+      sprites.add(await Sprite.load('enemy/enemy1_down$i.png'));
+    }
+
+    playing = false;
+    final spriteAnimation =
+        SpriteAnimation.spriteList(sprites, stepTime: 0.15, loop: false);
     animation = spriteAnimation;
 
-    add(RectangleHitbox()..debugMode = true);
+    add(RectangleHitbox(
+        size: Vector2(size.x * 0.8, size.y * 0.8),
+        position: Vector2(size.x * 0.1, size.y * 0.1))
+      ..debugMode = true);
   }
 
   @override
@@ -76,6 +79,20 @@ class Enemy1 extends SpriteAnimationComponent
     position.add(ds);
     if (position.y > gameRef.size.y) {
       removeFromParent();
+    }
+  }
+
+  @override
+  void onCollisionStart(
+      Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollisionStart(intersectionPoints, other);
+    if (destroyed) return;
+    if (other is Player) {
+      other.loss();
+      playing = true;
+    } else if (other is Bullet1) {
+      other.loss();
+      playing = true;
     }
   }
 }
