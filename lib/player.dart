@@ -3,11 +3,13 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
+import 'package:flutter/material.dart' show Colors, Offset;
 import 'package:the_war_of_space/bullet.dart';
 
 import 'enemy.dart';
 
-class Player extends SpriteAnimationComponent with HasGameRef, Draggable, CollisionCallbacks {
+class Player extends SpriteAnimationComponent
+    with HasGameRef, Draggable, CollisionCallbacks {
   Player({required Vector2 initPosition, required Vector2 size})
       : super(position: initPosition, size: size);
 
@@ -15,11 +17,13 @@ class Player extends SpriteAnimationComponent with HasGameRef, Draggable, Collis
 
   @override
   CollisionCallback<PositionComponent>? get onCollisionCallback =>
-          (Set<Vector2> intersectionPoints, PositionComponent other) {
+      (Set<Vector2> intersectionPoints, PositionComponent other) {
         if (other is Enemy1) {
-          EffectController ctrl = NoiseEffectController(duration: 1, frequency: 30);
-          Effect effect = MoveByEffect(Vector2(4, 0), ctrl);
-          add(effect);
+          removeAll(children.whereType<MoveEffect>());
+          add(MoveByEffect(Vector2(4, 0),
+              NoiseEffectController(duration: 0.5, frequency: 20)));
+          add(ColorEffect(Colors.white, const Offset(0.0, 0.5),
+              EffectController(duration: 0.25, reverseDuration: 0.25)));
         }
       };
 
