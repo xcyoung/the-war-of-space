@@ -2,12 +2,19 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:the_war_of_space/bullet.dart';
 import 'package:the_war_of_space/player.dart';
 
 class EnemyCreator extends PositionComponent with HasGameRef {
   late Timer _createTimer;
   final Random _random = Random();
+
+  final enemyAttrMapping = {
+    1: EnemyAttr(size: Vector2(45, 45), life: 1, speed: 50.0),
+    2: EnemyAttr(size: Vector2(50, 60), life: 2, speed: 30.0),
+    3: EnemyAttr(size: Vector2(100, 150), life: 4, speed: 20.0)
+  };
 
   @override
   Future<void> onLoad() async {
@@ -35,64 +42,256 @@ class EnemyCreator extends PositionComponent with HasGameRef {
   void _createEnemy() {
     final width = gameRef.size.x;
     double x = _random.nextDouble() * width;
-    final Vector2 size = Vector2(50, 50);
-    if (width - x < 50) {
-      x = width - 50;
+    final double random = _random.nextDouble();
+    final EnemyAttr attr;
+    final Enemy enemy;
+    if (random < 0.5) {
+      attr = enemyAttrMapping[1]!;
+      if (width - x < attr.size.x) x = width - x;
+      enemy = Enemy1(
+          initPosition: Vector2(x, -attr.size.y),
+          size: attr.size,
+          life: attr.life,
+          speed: attr.speed);
+    } else if (random >= 0.5 && random < 0.8) {
+      attr = enemyAttrMapping[2]!;
+      if (width - x < attr.size.x) x = width - x;
+      enemy = Enemy2(
+          initPosition: Vector2(x, -attr.size.y),
+          size: attr.size,
+          life: attr.life,
+          speed: attr.speed);
+    } else {
+      attr = enemyAttrMapping[3]!;
+      if (width - x < attr.size.x) x = width - x;
+      enemy = Enemy3(
+          initPosition: Vector2(x, -attr.size.y),
+          size: attr.size,
+          life: attr.life,
+          speed: attr.speed);
     }
-    final enemy1 = Enemy1(initPosition: Vector2(x, -size.y), size: size);
-    add(enemy1);
+    add(enemy);
   }
 }
 
-class Enemy1 extends SpriteAnimationComponent
+enum EnemyState {
+  idle,
+  hit,
+  down,
+}
+
+class EnemyAttr {
+  Vector2 size;
+  int life;
+  double speed;
+
+  EnemyAttr({required this.size, required this.life, required this.speed});
+}
+
+abstract class Enemy extends SpriteAnimationGroupComponent<EnemyState>
     with HasGameRef, CollisionCallbacks {
-  Enemy1({required Vector2 initPosition, required Vector2 size})
-      : super(position: initPosition, size: size, removeOnFinish: true);
+  Enemy(
+      {required Vector2 initPosition,
+      required Vector2 size,
+      required this.life,
+      required this.speed})
+      : super(
+            position: initPosition,
+            size: size,
+            current: EnemyState.idle,
+            removeOnFinish: {EnemyState.down: true}) {
+    animations = <EnemyState, SpriteAnimation>{};
+  }
 
-  bool get destroyed => isRemoving || playing;
+  int life;
+  double speed;
 
-  int life = 1;
+  set _enemyState(EnemyState state) {
+    if (state == EnemyState.hit) {
+      animations?[state]?.reset();
+    }
+    current = state;
+  }
+
+  Future<SpriteAnimation> idleSpriteAnimation();
+
+  Future<SpriteAnimation?> hitSpriteAnimation();
+
+  Future<SpriteAnimation> downSpriteAnimation();
+
+  RectangleHitbox rectangleHitbox();
 
   @override
   Future<void> onLoad() async {
-    List<Sprite> sprites = [];
-    sprites.add(await Sprite.load('enemy/enemy1.png'));
-    for (int i = 1; i <= 4; i++) {
-      sprites.add(await Sprite.load('enemy/enemy1_down$i.png'));
-    }
+    animations?[EnemyState.idle] = await idleSpriteAnimation();
+    final hit = await hitSpriteAnimation();
+    hit?.onComplete = () {
+      _enemyState = EnemyState.idle;
+    };
+    if (hit != null) animations?[EnemyState.hit] = hit;
+    animations?[EnemyState.down] = await downSpriteAnimation();
 
-    playing = false;
-    final spriteAnimation =
-        SpriteAnimation.spriteList(sprites, stepTime: 0.15, loop: false);
-    animation = spriteAnimation;
-
-    add(RectangleHitbox(
-        size: Vector2(size.x * 0.8, size.y * 0.8),
-        position: Vector2(size.x * 0.1, size.y * 0.1))
-      ..debugMode = true);
-  }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-    Vector2 ds = Vector2(0, 1) * 100 * dt;
-    position.add(ds);
-    if (position.y > gameRef.size.y) {
+    add(MoveEffect.to(
+        Vector2(position.x, gameRef.size.y), EffectController(speed: speed),
+        onComplete: () {
       removeFromParent();
-    }
+    }));
+
+    add(rectangleHitbox()..debugMode = true);
   }
 
   @override
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-    if (destroyed) return;
-    if (other is Player) {
-      other.loss();
-      playing = true;
-    } else if (other is Bullet1) {
-      other.loss();
-      playing = true;
+    if (current == EnemyState.down) return;
+    if (other is Player || other is Bullet1) {
+      if (current == EnemyState.idle) {
+        if (life > 1) {
+          _enemyState = EnemyState.hit;
+          life--;
+        } else {
+          _enemyState = EnemyState.down;
+          life = 0;
+        }
+
+        if (other is Player) {
+          other.loss();
+        } else if (other is Bullet1) {
+          other.loss();
+        }
+      }
     }
+  }
+}
+
+class Enemy1 extends Enemy {
+  Enemy1(
+      {required Vector2 initPosition,
+      required Vector2 size,
+      required life,
+      required speed})
+      : super(initPosition: initPosition, size: size, life: life, speed: speed);
+
+  @override
+  Future<SpriteAnimation> idleSpriteAnimation() async {
+    List<Sprite> sprites = [];
+    sprites.add(await Sprite.load('enemy/enemy1.png'));
+    final idleSpriteAnimation =
+        SpriteAnimation.spriteList(sprites, stepTime: 0.15, loop: false);
+    return idleSpriteAnimation;
+  }
+
+  @override
+  Future<SpriteAnimation> downSpriteAnimation() async {
+    List<Sprite> sprites = [];
+    for (int i = 1; i <= 4; i++) {
+      sprites.add(await Sprite.load('enemy/enemy1_down$i.png'));
+    }
+    final downSpriteAnimation =
+        SpriteAnimation.spriteList(sprites, stepTime: 0.15, loop: false);
+    return downSpriteAnimation;
+  }
+
+  @override
+  Future<SpriteAnimation?> hitSpriteAnimation() async {
+    return null;
+  }
+
+  @override
+  RectangleHitbox rectangleHitbox() {
+    return RectangleHitbox(
+        size: Vector2(size.x * 0.8, size.y * 0.8),
+        position: Vector2(size.x * 0.1, size.y * 0.1));
+  }
+}
+
+class Enemy2 extends Enemy {
+  Enemy2(
+      {required Vector2 initPosition,
+      required Vector2 size,
+      required life,
+      required speed})
+      : super(initPosition: initPosition, size: size, life: life, speed: speed);
+
+  @override
+  Future<SpriteAnimation> downSpriteAnimation() async {
+    List<Sprite> sprites = [];
+    for (int i = 1; i <= 4; i++) {
+      sprites.add(await Sprite.load('enemy/enemy2_down$i.png'));
+    }
+    final downSpriteAnimation =
+        SpriteAnimation.spriteList(sprites, stepTime: 0.15, loop: false);
+    return downSpriteAnimation;
+  }
+
+  @override
+  Future<SpriteAnimation?> hitSpriteAnimation() async {
+    List<Sprite> sprites = [];
+    sprites.add(await Sprite.load('enemy/enemy2_hit.png'));
+    sprites.add(await Sprite.load('enemy/enemy2.png'));
+    final idleSpriteAnimation =
+        SpriteAnimation.spriteList(sprites, stepTime: 0.15, loop: false);
+    return idleSpriteAnimation;
+  }
+
+  @override
+  Future<SpriteAnimation> idleSpriteAnimation() async {
+    List<Sprite> sprites = [];
+    sprites.add(await Sprite.load('enemy/enemy2.png'));
+    final idleSpriteAnimation =
+        SpriteAnimation.spriteList(sprites, stepTime: 0.15, loop: false);
+    return idleSpriteAnimation;
+  }
+
+  @override
+  RectangleHitbox rectangleHitbox() {
+    return RectangleHitbox(
+        size: Vector2(size.x, size.y * 0.9), position: Vector2(0, 0));
+  }
+}
+
+class Enemy3 extends Enemy {
+  Enemy3(
+      {required Vector2 initPosition,
+      required Vector2 size,
+      required life,
+      required speed})
+      : super(initPosition: initPosition, size: size, life: life, speed: speed);
+
+  @override
+  Future<SpriteAnimation> downSpriteAnimation() async {
+    List<Sprite> sprites = [];
+    for (int i = 1; i < 6; i++) {
+      sprites.add(await Sprite.load('enemy/enemy3_down$i.png'));
+    }
+    final downSpriteAnimation =
+        SpriteAnimation.spriteList(sprites, stepTime: 0.15, loop: false);
+    return downSpriteAnimation;
+  }
+
+  @override
+  Future<SpriteAnimation?> hitSpriteAnimation() async {
+    List<Sprite> sprites = [];
+    sprites.add(await Sprite.load('enemy/enemy3_hit.png'));
+    final spriteAnimation =
+        SpriteAnimation.spriteList(sprites, stepTime: 0.15, loop: false);
+    return spriteAnimation;
+  }
+
+  @override
+  Future<SpriteAnimation> idleSpriteAnimation() async {
+    List<Sprite> sprites = [];
+    sprites.add(await Sprite.load('enemy/enemy3_n1.png'));
+    sprites.add(await Sprite.load('enemy/enemy3_n2.png'));
+    final idleSpriteAnimation =
+        SpriteAnimation.spriteList(sprites, stepTime: 0.15, loop: true);
+    return idleSpriteAnimation;
+  }
+
+  @override
+  RectangleHitbox rectangleHitbox() {
+    return RectangleHitbox(
+        size: Vector2(size.x, size.y * 0.95), position: Vector2(0, 0));
   }
 }
