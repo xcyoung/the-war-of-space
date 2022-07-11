@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:the_war_of_space/bullet.dart';
 import 'package:the_war_of_space/player.dart';
+import 'package:the_war_of_space/supply.dart';
 
 class EnemyCreator extends PositionComponent with HasGameRef {
   late Timer _createTimer;
@@ -179,24 +179,6 @@ abstract class Enemy extends SpriteAnimationGroupComponent<EnemyState>
         }
       }
     }
-
-    // if (other is Player || other is Bullet) {
-    //   if (current == EnemyState.idle) {
-    //     if (life > 1) {
-    //       _enemyState = EnemyState.hit;
-    //       life--;
-    //     } else {
-    //       _enemyState = EnemyState.down;
-    //       life = 0;
-    //     }
-    //
-    //     if (other is Player) {
-    //       other.loss();
-    //     } else if (other is Bullet) {
-    //       other.loss();
-    //     }
-    //   }
-    // }
   }
 }
 
