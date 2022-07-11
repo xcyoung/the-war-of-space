@@ -31,7 +31,7 @@ class Player extends SpriteAnimationComponent
     add(RectangleHitbox()..debugMode = true);
 
     _shootingTimer = Timer(0.5, onTick: _addBullet, repeat: true);
-    _bulletUpgradeTimer = Timer(5, onTick: _downgradeBullet);
+    _bulletUpgradeTimer = Timer(5, onTick: _downgradeBullet, autoStart: false);
   }
 
   @override
