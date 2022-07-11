@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
@@ -43,9 +44,23 @@ class EnemyCreator extends PositionComponent with HasGameRef {
     final width = gameRef.size.x;
     double x = _random.nextDouble() * width;
     final double random = _random.nextDouble();
+    if (random < 0.05) {
+      final size = Vector2(60, 75);
+      if (width - x < size.x / 2) {
+        x = width - size.x / 2;
+      } else if (x < size.x / 2) {
+        x = size.x / 2;
+      }
+      final enemySupply =
+          BulletSupply(position: Vector2(x, -size.y), size: size);
+
+      add(enemySupply);
+      return;
+    }
+
     final EnemyAttr attr;
     final Enemy enemy;
-    if (random < 0.5) {
+    if (random >= 0.05 && random < 0.5) {
       attr = enemyAttrMapping[1]!;
       if (width - x < attr.size.x) x = width - x;
       enemy = Enemy1(
@@ -145,23 +160,43 @@ abstract class Enemy extends SpriteAnimationGroupComponent<EnemyState>
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     if (current == EnemyState.down) return;
-    if (other is Player || other is Bullet1) {
+    if (other is Player || other is Bullet) {
       if (current == EnemyState.idle) {
-        if (life > 1) {
-          _enemyState = EnemyState.hit;
-          life--;
-        } else {
-          _enemyState = EnemyState.down;
-          life = 0;
+        int harm = 0;
+        if (other is Player) {
+          harm = 1;
+          other.loss();
+        } else if (other is Bullet) {
+          harm = other.attack;
+          other.loss();
         }
 
-        if (other is Player) {
-          other.loss();
-        } else if (other is Bullet1) {
-          other.loss();
+        life -= harm;
+        if (life > 0) {
+          _enemyState = EnemyState.hit;
+        } else {
+          _enemyState = EnemyState.down;
         }
       }
     }
+
+    // if (other is Player || other is Bullet) {
+    //   if (current == EnemyState.idle) {
+    //     if (life > 1) {
+    //       _enemyState = EnemyState.hit;
+    //       life--;
+    //     } else {
+    //       _enemyState = EnemyState.down;
+    //       life = 0;
+    //     }
+    //
+    //     if (other is Player) {
+    //       other.loss();
+    //     } else if (other is Bullet) {
+    //       other.loss();
+    //     }
+    //   }
+    // }
   }
 }
 
