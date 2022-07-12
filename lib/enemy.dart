@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
@@ -51,10 +52,13 @@ class EnemyCreator extends PositionComponent with HasGameRef {
       } else if (x < size.x / 2) {
         x = size.x / 2;
       }
-      final enemySupply =
-          BulletSupply(position: Vector2(x, -size.y), size: size);
-
-      add(enemySupply);
+      final Supply supply;
+      if (_random.nextDouble() < 0.5) {
+        supply = BombSupply(position: Vector2(x, -size.y), size: size);
+      } else {
+        supply = BulletSupply(position: Vector2(x, -size.y), size: size);
+      }
+      add(supply);
       return;
     }
 

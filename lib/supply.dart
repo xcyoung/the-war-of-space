@@ -11,9 +11,6 @@ abstract class Supply extends SpriteComponent with HasGameRef {
 
   @override
   Future<void> onLoad() async {
-    sprite = await Sprite.load('bullet/bullet_supply.png');
-    anchor = Anchor.topCenter;
-
     add(MoveEffect.to(
         Vector2(position.x, gameRef.size.y), EffectController(speed: 40.0),
         onComplete: () {
@@ -31,6 +28,11 @@ class BulletSupply extends Supply with CollisionCallbacks {
   BulletSupply({position, size}) : super(position: position, size: size);
 
   @override
+  Future<void> onLoad() async {
+    sprite = await Sprite.load('bullet/bullet_supply.png');
+  }
+
+  @override
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
@@ -38,5 +40,14 @@ class BulletSupply extends Supply with CollisionCallbacks {
       other.upgradeBullet();
       removeFromParent();
     }
+  }
+}
+
+class BombSupply extends Supply with CollisionCallbacks {
+  BombSupply({position, size}) : super(position: position, size: size);
+
+  @override
+  Future<void> onLoad() async {
+    sprite = await Sprite.load('bomb/bomb_supply.png');
   }
 }

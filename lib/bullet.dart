@@ -1,10 +1,8 @@
-import 'dart:math';
-
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 
-abstract class Bullet extends SpriteAnimationComponent {
+abstract class Bullet extends SpriteAnimationComponent with CollisionCallbacks {
   Bullet({required this.speed, required this.attack})
       : super(size: Vector2(5, 11));
 
