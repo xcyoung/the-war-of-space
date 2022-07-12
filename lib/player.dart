@@ -6,9 +6,10 @@ import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart' show Colors, Offset;
 import 'package:the_war_of_space/bullet.dart';
+import 'package:the_war_of_space/main.dart';
 
 class Player extends SpriteAnimationComponent
-    with HasGameRef, Draggable, CollisionCallbacks {
+    with HasGameRef<Game>, Draggable, CollisionCallbacks {
   Player({required Vector2 initPosition, required Vector2 size})
       : super(position: initPosition, size: size);
 
@@ -88,6 +89,8 @@ class Player extends SpriteAnimationComponent
 
     add(collisionNoiseEffect);
     add(collisionColorEffect);
+
+    gameRef.playerLoss();
   }
 
   void upgradeBullet() {
