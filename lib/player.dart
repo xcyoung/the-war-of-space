@@ -7,15 +7,19 @@ import 'package:flame/events.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flutter/material.dart' show Colors, Curves, Offset;
 import 'package:the_war_of_space/bullet.dart';
-import 'package:the_war_of_space/main.dart';
+import 'package:the_war_of_space/game.dart';
 
 import 'game_status/game_status_bloc.dart';
 import 'game_status/game_status_state.dart';
 
-class Player extends SpriteAnimationComponent
-    with HasGameRef<Game>, Draggable, CollisionCallbacks {
+class Player extends SpriteAnimationGroupComponent<GameStatus>
+    with HasGameRef<SpaceGame>, Draggable, CollisionCallbacks {
   Player({required Vector2 initPosition, required Vector2 size})
-      : super(position: initPosition, size: size);
+      : super(
+            position: initPosition,
+            size: size,
+            current: GameStatus.playing,
+            removeOnFinish: {GameStatus.gameOver: true});
 
   int bulletType = 1;
 
@@ -31,7 +35,18 @@ class Player extends SpriteAnimationComponent
       sprites.add(await Sprite.load('player/me$i.png'));
     }
     final spriteAnimation = SpriteAnimation.spriteList(sprites, stepTime: 0.15);
-    animation = spriteAnimation;
+
+    List<Sprite> destroySprites = [];
+    for (int i = 1; i <= 2; i++) {
+      destroySprites.add(await Sprite.load('player/me_destroy_$i.png'));
+    }
+    final destroySpriteAnimation =
+        SpriteAnimation.spriteList(destroySprites, stepTime: 0.15, loop: false);
+
+    animations = {
+      GameStatus.playing: spriteAnimation,
+      GameStatus.gameOver: destroySpriteAnimation
+    };
 
     add(RectangleHitbox()..debugMode = true);
 
@@ -40,7 +55,7 @@ class Player extends SpriteAnimationComponent
     _bulletUpgradeTimer = Timer(5, onTick: _downgradeBullet, autoStart: false);
 
     add(MoveEffect.to(Vector2(position.x, gameRef.size.y * 0.75),
-        EffectController(duration: 1.5, curve: Curves.easeOutBack))
+        EffectController(duration: 1.5, curve: Curves.easeOutSine))
       ..onComplete = () {
         gameRef.gameStart();
       });
@@ -54,6 +69,7 @@ class Player extends SpriteAnimationComponent
       } else if (state.status == GameStatus.gameOver) {
         _shootingTimer.stop();
         if (_bulletUpgradeTimer.isRunning()) _bulletUpgradeTimer.stop();
+        current = GameStatus.gameOver;
       }
     }));
   }

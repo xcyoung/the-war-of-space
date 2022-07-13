@@ -1,16 +1,11 @@
-import 'package:flame/components.dart';
 import 'package:flame/game.dart';
-import 'package:flame/parallax.dart';
-import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:the_war_of_space/enemy.dart';
+import 'package:the_war_of_space/game.dart';
 import 'package:the_war_of_space/game_status/game_status_bloc.dart';
-import 'package:the_war_of_space/game_status/game_status_event.dart';
-import 'package:the_war_of_space/game_status/game_status_state.dart';
+import 'package:the_war_of_space/menu/menu_reset.dart';
 import 'package:the_war_of_space/panel/panel_live.dart';
 import 'package:the_war_of_space/panel/panel_score.dart';
-import 'package:the_war_of_space/player.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -46,7 +41,13 @@ class GameView extends StatelessWidget {
       children: [
         Positioned.fill(
             child: GameWidget(
-                game: Game(gameStatusBloc: context.read<GameStatusBloc>()))),
+          game: SpaceGame(gameStatusBloc: context.read<GameStatusBloc>()),
+          overlayBuilderMap: {
+            'menu_reset': (_, game) {
+              return ResetMenu(game: game as SpaceGame);
+            }
+          },
+        )),
         SafeArea(
             child: Stack(
           children: [
@@ -66,54 +67,5 @@ class GameView extends StatelessWidget {
         ))
       ],
     );
-  }
-}
-
-class Game extends FlameGame with HasDraggables, HasCollisionDetection {
-  final GameStatusBloc gameStatusBloc;
-
-  Game({required this.gameStatusBloc});
-
-  late Player player;
-
-  @override
-  Future<void> onLoad() async {
-    final ParallaxComponent parallax = await loadParallaxComponent(
-        [ParallaxImageData('background.png')],
-        repeat: ImageRepeat.repeatY, baseVelocity: Vector2(0, 25));
-    add(parallax);
-
-    await add(FlameMultiBlocProvider(providers: [
-      FlameBlocProvider<GameStatusBloc, GameStatusState>.value(
-          value: gameStatusBloc)
-    ], children: [
-      player = Player(
-          initPosition: Vector2((size.x - 75) / 2, size.y + 100),
-          size: Vector2(75, 100)),
-      EnemyCreator(),
-      //  clear all on initial
-      FlameBlocListener<GameStatusBloc, GameStatusState>(
-          listenWhen: (pState, nState) {
-        return pState.status != nState.status &&
-            nState.status == GameStatus.initial;
-      }, onNewState: (state) {
-        children.removeWhere((element) => element is! Player);
-        add(player = Player(
-            initPosition: Vector2((size.x - 75) / 2, size.y + 100),
-            size: Vector2(75, 100)));
-      }),
-    ]));
-  }
-
-  void gameStart() {
-    gameStatusBloc.add(const GameStart());
-  }
-
-  void playerLoss() {
-    gameStatusBloc.add(const PlayerLoss());
-  }
-
-  void enemyDestroy(int enemyType) {
-    gameStatusBloc.add(EnemyDestroy(enemyType));
   }
 }

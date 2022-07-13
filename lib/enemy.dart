@@ -6,10 +6,10 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:the_war_of_space/bullet.dart';
-import 'package:the_war_of_space/main.dart';
 import 'package:the_war_of_space/player.dart';
 import 'package:the_war_of_space/supply.dart';
 
+import 'game.dart';
 import 'game_status/game_status_bloc.dart';
 import 'game_status/game_status_state.dart';
 
@@ -63,7 +63,7 @@ class EnemyCreator extends PositionComponent with HasGameRef {
       } else {
         supply = BulletSupply(position: Vector2(x, -size.y), size: size);
       }
-      add(supply);
+      parent?.add(supply);
       return;
     }
 
@@ -94,7 +94,7 @@ class EnemyCreator extends PositionComponent with HasGameRef {
           life: attr.life,
           speed: attr.speed);
     }
-    add(enemy);
+    parent?.add(enemy);
   }
 }
 
@@ -113,7 +113,7 @@ class EnemyAttr {
 }
 
 abstract class Enemy extends SpriteAnimationGroupComponent<EnemyState>
-    with HasGameRef<Game>, CollisionCallbacks {
+    with HasGameRef<SpaceGame>, CollisionCallbacks {
   Enemy(
       {required Vector2 initPosition,
       required Vector2 size,
