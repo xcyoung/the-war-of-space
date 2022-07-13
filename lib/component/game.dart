@@ -23,10 +23,11 @@ class GameStatusController extends Component with HasGameRef<SpaceGame> {
         gameRef.resumeEngine();
         gameRef.overlays.remove('menu_reset');
 
-        parent?.removeAll(children.where((element) {
+        if (parent == null) return;
+        parent!.removeAll(parent!.children.where((element) {
           return element is Enemy || element is Supply || element is Bullet;
         }));
-        parent?.add(gameRef.player = Player(
+        parent!.add(gameRef.player = Player(
             initPosition:
                 Vector2((gameRef.size.x - 75) / 2, gameRef.size.y + 100),
             size: Vector2(75, 100)));
