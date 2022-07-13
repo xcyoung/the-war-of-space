@@ -3,14 +3,14 @@ import 'package:flame/game.dart';
 import 'package:flame/parallax.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:the_war_of_space/bullet.dart';
-import 'package:the_war_of_space/player.dart';
-import 'package:the_war_of_space/supply.dart';
+import 'package:the_war_of_space/component/bullet.dart';
+import 'package:the_war_of_space/component/player.dart';
+import 'package:the_war_of_space/component/supply.dart';
 
-import 'enemy.dart';
-import 'game_status/game_status_bloc.dart';
-import 'game_status/game_status_event.dart';
-import 'game_status/game_status_state.dart';
+import './enemy.dart';
+import '../game_status/game_status_bloc.dart';
+import '../game_status/game_status_event.dart';
+import '../game_status/game_status_state.dart';
 
 class GameStatusController extends Component with HasGameRef<SpaceGame> {
   @override

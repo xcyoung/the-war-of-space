@@ -6,11 +6,11 @@ import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flutter/material.dart' show Colors, Curves, Offset;
-import 'package:the_war_of_space/bullet.dart';
-import 'package:the_war_of_space/game.dart';
+import 'package:the_war_of_space/component/bullet.dart';
+import 'package:the_war_of_space/component/game.dart';
 
-import 'game_status/game_status_bloc.dart';
-import 'game_status/game_status_state.dart';
+import '../game_status/game_status_bloc.dart';
+import '../game_status/game_status_state.dart';
 
 class Player extends SpriteAnimationGroupComponent<GameStatus>
     with HasGameRef<SpaceGame>, Draggable, CollisionCallbacks {

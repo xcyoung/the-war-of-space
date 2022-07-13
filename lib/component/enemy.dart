@@ -5,13 +5,13 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame_bloc/flame_bloc.dart';
-import 'package:the_war_of_space/bullet.dart';
-import 'package:the_war_of_space/player.dart';
-import 'package:the_war_of_space/supply.dart';
+import 'package:the_war_of_space/component/bullet.dart';
+import 'package:the_war_of_space/component/player.dart';
+import 'package:the_war_of_space/component/supply.dart';
 
+import '../game_status/game_status_bloc.dart';
+import '../game_status/game_status_state.dart';
 import 'game.dart';
-import 'game_status/game_status_bloc.dart';
-import 'game_status/game_status_state.dart';
 
 class EnemyCreator extends PositionComponent with HasGameRef {
   late Timer _createTimer;

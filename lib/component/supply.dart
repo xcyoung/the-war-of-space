@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:the_war_of_space/player.dart';
+import 'package:the_war_of_space/component/player.dart';
 
 abstract class Supply extends SpriteComponent with HasGameRef {
   Supply({position, size})

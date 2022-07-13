@@ -1,7 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:the_war_of_space/game.dart';
+import 'package:the_war_of_space/component/game.dart';
 import 'package:the_war_of_space/game_status/game_status_bloc.dart';
 import 'package:the_war_of_space/menu/menu_reset.dart';
 import 'package:the_war_of_space/panel/panel_live.dart';

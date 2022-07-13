@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:the_war_of_space/game.dart';
+import 'package:the_war_of_space/component/game.dart';
 
 class ResetMenu extends StatelessWidget {
   const ResetMenu({Key? key, required this.game}) : super(key: key);
