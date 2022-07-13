@@ -3,19 +3,21 @@ import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flutter/material.dart';
 import 'package:the_war_of_space/component/player.dart';
 
 abstract class Supply extends SpriteComponent with HasGameRef {
   Supply({position, size})
       : super(position: position, size: size, anchor: Anchor.topCenter);
 
+  @mustCallSuper
   @override
   Future<void> onLoad() async {
     add(MoveEffect.to(
         Vector2(position.x, gameRef.size.y), EffectController(speed: 40.0),
         onComplete: () {
-      removeFromParent();
-    }));
+          removeFromParent();
+        }));
 
     add(RotateEffect.by(15 / 180 * pi,
         EffectController(duration: 2, reverseDuration: 2, infinite: true)));
@@ -29,6 +31,7 @@ class BulletSupply extends Supply with CollisionCallbacks {
 
   @override
   Future<void> onLoad() async {
+    super.onLoad();
     sprite = await Sprite.load('bullet/bullet_supply.png');
   }
 
@@ -48,6 +51,7 @@ class BombSupply extends Supply with CollisionCallbacks {
 
   @override
   Future<void> onLoad() async {
+    super.onLoad();
     sprite = await Sprite.load('bomb/bomb_supply.png');
   }
 }

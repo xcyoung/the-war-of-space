@@ -51,7 +51,7 @@ class EnemyCreator extends PositionComponent with HasGameRef {
     double x = _random.nextDouble() * width;
     final double random = _random.nextDouble();
     if (random < 0.05) {
-      final size = Vector2(60, 75);
+      final size = Vector2(60, 65);
       if (width - x < size.x / 2) {
         x = width - size.x / 2;
       } else if (x < size.x / 2) {
