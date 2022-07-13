@@ -5,6 +5,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:the_war_of_space/bullet.dart';
+import 'package:the_war_of_space/main.dart';
 import 'package:the_war_of_space/player.dart';
 import 'package:the_war_of_space/supply.dart';
 
@@ -108,7 +109,7 @@ class EnemyAttr {
 }
 
 abstract class Enemy extends SpriteAnimationGroupComponent<EnemyState>
-    with HasGameRef, CollisionCallbacks {
+    with HasGameRef<Game>, CollisionCallbacks {
   Enemy(
       {required Vector2 initPosition,
       required Vector2 size,
@@ -139,6 +140,8 @@ abstract class Enemy extends SpriteAnimationGroupComponent<EnemyState>
   Future<SpriteAnimation> downSpriteAnimation();
 
   RectangleHitbox rectangleHitbox();
+
+  int enemyType();
 
   @override
   Future<void> onLoad() async {
@@ -180,6 +183,7 @@ abstract class Enemy extends SpriteAnimationGroupComponent<EnemyState>
           _enemyState = EnemyState.hit;
         } else {
           _enemyState = EnemyState.down;
+          gameRef.enemyDestroy(enemyType());
         }
       }
     }
@@ -225,6 +229,9 @@ class Enemy1 extends Enemy {
         size: Vector2(size.x * 0.8, size.y * 0.8),
         position: Vector2(size.x * 0.1, size.y * 0.1));
   }
+
+  @override
+  int enemyType() => 1;
 }
 
 class Enemy2 extends Enemy {
@@ -270,6 +277,9 @@ class Enemy2 extends Enemy {
     return RectangleHitbox(
         size: Vector2(size.x, size.y * 0.9), position: Vector2(0, 0));
   }
+
+  @override
+  int enemyType() => 2;
 }
 
 class Enemy3 extends Enemy {
@@ -315,4 +325,7 @@ class Enemy3 extends Enemy {
     return RectangleHitbox(
         size: Vector2(size.x, size.y * 0.95), position: Vector2(0, 0));
   }
+
+  @override
+  int enemyType() => 3;
 }

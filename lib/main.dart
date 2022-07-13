@@ -9,6 +9,7 @@ import 'package:the_war_of_space/game_status/game_status_bloc.dart';
 import 'package:the_war_of_space/game_status/game_status_event.dart';
 import 'package:the_war_of_space/game_status/game_status_state.dart';
 import 'package:the_war_of_space/panel/panel_live.dart';
+import 'package:the_war_of_space/panel/panel_score.dart';
 import 'package:the_war_of_space/player.dart';
 
 void main() {
@@ -46,20 +47,23 @@ class GameView extends StatelessWidget {
         Positioned.fill(
             child: GameWidget(
                 game: Game(gameStatusBloc: context.read<GameStatusBloc>()))),
-        Positioned(
-          bottom: 0,
-          right: 0,
-          left: 0,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
-            child: Row(
-              children: [
-                Expanded(child: Container()),
-                const Expanded(child: LivePanel()),
-              ],
-            ),
-          ),
-        )
+        SafeArea(
+            child: Stack(
+          children: [
+            const Positioned(top: 4, right: 4, child: ScorePanel()),
+            Positioned(
+              bottom: 4,
+              right: 4,
+              left: 0,
+              child: Row(
+                children: [
+                  Expanded(child: Container()),
+                  const Expanded(child: LivePanel()),
+                ],
+              ),
+            )
+          ],
+        ))
       ],
     );
   }
@@ -103,5 +107,9 @@ class Game extends FlameGame with HasDraggables, HasCollisionDetection {
 
   void playerLoss() {
     gameStatusBloc.add(const PlayerLoss());
+  }
+
+  void enemyDestroy(int enemyType) {
+    gameStatusBloc.add(EnemyDestroy(enemyType));
   }
 }

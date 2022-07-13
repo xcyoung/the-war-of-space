@@ -17,5 +17,9 @@ class GameStatusBloc extends Bloc<GameStatusEvent, GameStatusState> {
         emit(state.copyWith(lives: 0, status: GameStatus.gameOver));
       }
     });
+
+    on<EnemyDestroy>((event, emit) {
+      emit(state.copyWith(score: state.score + event.enemyType * 100));
+    });
   }
 }

@@ -24,3 +24,12 @@ class PlayerLoss extends GameStatusEvent {
   @override
   List<Object?> get props => [];
 }
+
+class EnemyDestroy extends GameStatusEvent {
+  EnemyDestroy(this.enemyType);
+
+  final int enemyType;
+
+  @override
+  List<Object?> get props => [enemyType];
+}
