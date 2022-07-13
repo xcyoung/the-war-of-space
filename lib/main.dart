@@ -78,8 +78,9 @@ class Game extends FlameGame with HasDraggables, HasCollisionDetection {
 
   @override
   Future<void> onLoad() async {
-    final ParallaxComponent parallax =
-        await loadParallaxComponent([ParallaxImageData('background.png')]);
+    final ParallaxComponent parallax = await loadParallaxComponent(
+        [ParallaxImageData('background.png')],
+        repeat: ImageRepeat.repeatY, baseVelocity: Vector2(0, 25));
     add(parallax);
 
     await add(FlameMultiBlocProvider(providers: [
