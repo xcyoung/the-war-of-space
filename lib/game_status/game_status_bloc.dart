@@ -21,5 +21,9 @@ class GameStatusBloc extends Bloc<GameStatusEvent, GameStatusState> {
     on<EnemyDestroy>((event, emit) {
       emit(state.copyWith(score: state.score + event.enemyType * 100));
     });
+
+    on<BombSupplyAdd>((event, emit) {
+      emit(state.copyWith(bombSupplyNumber: state.bombSupplyNumber + 1));
+    });
   }
 }

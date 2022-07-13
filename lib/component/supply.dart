@@ -4,9 +4,10 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
+import 'package:the_war_of_space/component/game.dart';
 import 'package:the_war_of_space/component/player.dart';
 
-abstract class Supply extends SpriteComponent with HasGameRef {
+abstract class Supply extends SpriteComponent with HasGameRef<SpaceGame> {
   Supply({position, size})
       : super(position: position, size: size, anchor: Anchor.topCenter);
 
@@ -16,8 +17,8 @@ abstract class Supply extends SpriteComponent with HasGameRef {
     add(MoveEffect.to(
         Vector2(position.x, gameRef.size.y), EffectController(speed: 40.0),
         onComplete: () {
-          removeFromParent();
-        }));
+      removeFromParent();
+    }));
 
     add(RotateEffect.by(15 / 180 * pi,
         EffectController(duration: 2, reverseDuration: 2, infinite: true)));
@@ -53,5 +54,15 @@ class BombSupply extends Supply with CollisionCallbacks {
   Future<void> onLoad() async {
     super.onLoad();
     sprite = await Sprite.load('bomb/bomb_supply.png');
+  }
+
+  @override
+  void onCollisionStart(
+      Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollisionStart(intersectionPoints, other);
+    if (other is Player) {
+      gameRef.bombSupplyAdd();
+      removeFromParent();
+    }
   }
 }

@@ -81,4 +81,8 @@ class SpaceGame extends FlameGame with HasDraggables, HasCollisionDetection {
   void enemyDestroy(int enemyType) {
     gameStatusBloc.add(EnemyDestroy(enemyType));
   }
+
+  void bombSupplyAdd() {
+    gameStatusBloc.add(const BombSupplyAdd());
+  }
 }

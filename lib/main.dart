@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:the_war_of_space/component/game.dart';
 import 'package:the_war_of_space/game_status/game_status_bloc.dart';
 import 'package:the_war_of_space/menu/menu_reset.dart';
+import 'package:the_war_of_space/panel/panel_bomb.dart';
 import 'package:the_war_of_space/panel/panel_live.dart';
 import 'package:the_war_of_space/panel/panel_score.dart';
 
@@ -55,11 +56,11 @@ class GameView extends StatelessWidget {
             Positioned(
               bottom: 4,
               right: 4,
-              left: 0,
+              left: 4,
               child: Row(
-                children: [
-                  Expanded(child: Container()),
-                  const Expanded(child: LivePanel()),
+                children: const [
+                  Expanded(child: BombPanel()),
+                  Expanded(child: LivePanel()),
                 ],
               ),
             )

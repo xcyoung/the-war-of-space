@@ -33,3 +33,10 @@ class EnemyDestroy extends GameStatusEvent {
   @override
   List<Object?> get props => [enemyType];
 }
+
+class BombSupplyAdd extends GameStatusEvent {
+  const BombSupplyAdd();
+
+  @override
+  List<Object?> get props => [];
+}
