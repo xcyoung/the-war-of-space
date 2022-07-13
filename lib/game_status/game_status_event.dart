@@ -11,6 +11,13 @@ class GameReset extends GameStatusEvent {
   List<Object?> get props => [];
 }
 
+class GameStart extends GameStatusEvent {
+  const GameStart();
+
+  @override
+  List<Object?> get props => [];
+}
+
 class PlayerLoss extends GameStatusEvent {
   const PlayerLoss();
 

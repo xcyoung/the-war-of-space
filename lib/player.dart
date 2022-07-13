@@ -33,6 +33,8 @@ class Player extends SpriteAnimationComponent
 
     _shootingTimer = Timer(0.5, onTick: _addBullet, repeat: true);
     _bulletUpgradeTimer = Timer(5, onTick: _downgradeBullet, autoStart: false);
+
+    gameRef.gameStart();
   }
 
   @override

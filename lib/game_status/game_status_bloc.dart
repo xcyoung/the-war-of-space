@@ -6,6 +6,10 @@ class GameStatusBloc extends Bloc<GameStatusEvent, GameStatusState> {
   GameStatusBloc() : super(const GameStatusState.empty()) {
     on<GameReset>((event, emit) => emit(const GameStatusState.empty()));
 
+    on<GameStart>((event, emit) {
+      emit(state.copyWith(status: GameStatus.playing));
+    });
+
     on<PlayerLoss>((event, emit) {
       if (state.lives > 1) {
         emit(state.copyWith(lives: state.lives - 1));
@@ -13,7 +17,5 @@ class GameStatusBloc extends Bloc<GameStatusEvent, GameStatusState> {
         emit(state.copyWith(lives: 0, status: GameStatus.gameOver));
       }
     });
-
-
   }
 }

@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 
 enum GameStatus {
   initial,
+  playing,
   gameOver
 }
 

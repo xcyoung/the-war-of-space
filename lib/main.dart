@@ -8,6 +8,7 @@ import 'package:the_war_of_space/enemy.dart';
 import 'package:the_war_of_space/game_status/game_status_bloc.dart';
 import 'package:the_war_of_space/game_status/game_status_event.dart';
 import 'package:the_war_of_space/game_status/game_status_state.dart';
+import 'package:the_war_of_space/panel/panel_live.dart';
 import 'package:the_war_of_space/player.dart';
 
 void main() {
@@ -26,7 +27,10 @@ class GamePage extends StatelessWidget {
         providers: [
           BlocProvider<GameStatusBloc>(create: (_) => GameStatusBloc())
         ],
-        child: const GameView(),
+        child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: const GameView()),
       ),
     );
   }
@@ -37,8 +41,27 @@ class GameView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GameWidget(
-        game: Game(gameStatusBloc: context.read<GameStatusBloc>()));
+    return Stack(
+      children: [
+        Positioned.fill(
+            child: GameWidget(
+                game: Game(gameStatusBloc: context.read<GameStatusBloc>()))),
+        Positioned(
+          bottom: 0,
+          right: 0,
+          left: 0,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+            child: Row(
+              children: [
+                Expanded(child: Container()),
+                const Expanded(child: LivePanel()),
+              ],
+            ),
+          ),
+        )
+      ],
+    );
   }
 }
 
@@ -68,13 +91,14 @@ class Game extends FlameGame with HasDraggables, HasCollisionDetection {
       }, onNewState: (state) {
         children.removeWhere((element) => element is! Player);
       }),
-      FlameBlocListener<GameStatusBloc, GameStatusState>(onNewState: (state) {
-        print(state);
-      })
     ]));
 
     final enemyCreator = EnemyCreator();
     add(enemyCreator);
+  }
+
+  void gameStart() {
+    gameStatusBloc.add(const GameStart());
   }
 
   void playerLoss() {
