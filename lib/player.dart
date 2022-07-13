@@ -4,9 +4,13 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
-import 'package:flutter/material.dart' show Colors, Offset;
+import 'package:flame_bloc/flame_bloc.dart';
+import 'package:flutter/material.dart' show Colors, Curves, Offset;
 import 'package:the_war_of_space/bullet.dart';
 import 'package:the_war_of_space/main.dart';
+
+import 'game_status/game_status_bloc.dart';
+import 'game_status/game_status_state.dart';
 
 class Player extends SpriteAnimationComponent
     with HasGameRef<Game>, Draggable, CollisionCallbacks {
@@ -31,16 +35,27 @@ class Player extends SpriteAnimationComponent
 
     add(RectangleHitbox()..debugMode = true);
 
-    _shootingTimer = Timer(0.5, onTick: _addBullet, repeat: true);
+    _shootingTimer =
+        Timer(0.5, onTick: _addBullet, repeat: true, autoStart: false);
     _bulletUpgradeTimer = Timer(5, onTick: _downgradeBullet, autoStart: false);
 
-    gameRef.gameStart();
-  }
+    add(MoveEffect.to(Vector2(position.x, gameRef.size.y * 0.75),
+        EffectController(duration: 1.5, curve: Curves.easeOutBack))
+      ..onComplete = () {
+        gameRef.gameStart();
+      });
 
-  @override
-  void onMount() {
-    super.onMount();
-    _shootingTimer.start();
+    add(FlameBlocListener<GameStatusBloc, GameStatusState>(
+        listenWhen: (pState, nState) {
+      return pState.status != nState.status;
+    }, onNewState: (state) {
+      if (state.status == GameStatus.playing) {
+        _shootingTimer.start();
+      } else if (state.status == GameStatus.gameOver) {
+        _shootingTimer.stop();
+        if (_bulletUpgradeTimer.isRunning()) _bulletUpgradeTimer.stop();
+      }
+    }));
   }
 
   @override
@@ -51,14 +66,8 @@ class Player extends SpriteAnimationComponent
   }
 
   @override
-  void onRemove() {
-    super.onRemove();
-    _shootingTimer.stop();
-    if (_bulletUpgradeTimer.isRunning()) _bulletUpgradeTimer.stop();
-  }
-
-  @override
   bool onDragUpdate(DragUpdateInfo info) {
+    if (gameRef.gameStatusBloc.state.status != GameStatus.playing) return false;
     final willToPosition = position + info.delta.global;
     double x = willToPosition.x;
     double y = willToPosition.y;

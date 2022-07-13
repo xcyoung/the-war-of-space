@@ -4,10 +4,14 @@ import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flame_bloc/flame_bloc.dart';
 import 'package:the_war_of_space/bullet.dart';
 import 'package:the_war_of_space/main.dart';
 import 'package:the_war_of_space/player.dart';
 import 'package:the_war_of_space/supply.dart';
+
+import 'game_status/game_status_bloc.dart';
+import 'game_status/game_status_state.dart';
 
 class EnemyCreator extends PositionComponent with HasGameRef {
   late Timer _createTimer;
@@ -21,25 +25,25 @@ class EnemyCreator extends PositionComponent with HasGameRef {
 
   @override
   Future<void> onLoad() async {
-    _createTimer = Timer(1, onTick: _createEnemy, repeat: true);
-  }
+    _createTimer =
+        Timer(1, onTick: _createEnemy, repeat: true, autoStart: false);
 
-  @override
-  void onMount() {
-    super.onMount();
-    _createTimer.start();
+    add(FlameBlocListener<GameStatusBloc, GameStatusState>(
+        listenWhen: (pState, nState) {
+      return pState.status != nState.status;
+    }, onNewState: (state) {
+      if (state.status == GameStatus.playing) {
+        _createTimer.start();
+      } else if (state.status == GameStatus.gameOver) {
+        _createTimer.stop();
+      }
+    }));
   }
 
   @override
   void update(double dt) {
     super.update(dt);
     _createTimer.update(dt);
-  }
-
-  @override
-  void onRemove() {
-    super.onRemove();
-    _createTimer.stop();
   }
 
   void _createEnemy() {

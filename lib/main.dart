@@ -74,6 +74,8 @@ class Game extends FlameGame with HasDraggables, HasCollisionDetection {
 
   Game({required this.gameStatusBloc});
 
+  late Player player;
+
   @override
   Future<void> onLoad() async {
     final ParallaxComponent parallax =
@@ -84,9 +86,10 @@ class Game extends FlameGame with HasDraggables, HasCollisionDetection {
       FlameBlocProvider<GameStatusBloc, GameStatusState>.value(
           value: gameStatusBloc)
     ], children: [
-      Player(
-          initPosition: Vector2(size.x / 2, size.y * 0.75),
+      player = Player(
+          initPosition: Vector2((size.x - 75) / 2, size.y + 100),
           size: Vector2(75, 100)),
+      EnemyCreator(),
       //  clear all on initial
       FlameBlocListener<GameStatusBloc, GameStatusState>(
           listenWhen: (pState, nState) {
@@ -94,11 +97,11 @@ class Game extends FlameGame with HasDraggables, HasCollisionDetection {
             nState.status == GameStatus.initial;
       }, onNewState: (state) {
         children.removeWhere((element) => element is! Player);
+        add(player = Player(
+            initPosition: Vector2((size.x - 75) / 2, size.y + 100),
+            size: Vector2(75, 100)));
       }),
     ]));
-
-    final enemyCreator = EnemyCreator();
-    add(enemyCreator);
   }
 
   void gameStart() {
