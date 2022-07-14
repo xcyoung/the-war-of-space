@@ -20,7 +20,7 @@ class BombPanel extends StatelessWidget {
                 height: 45,
                 child: Image(image: AssetImage('assets/images/bomb/bomb.png'))),
             Text(
-              ' * ${state.bombSupplyNumber}',
+              ' x ${state.bombSupplyNumber}',
               style: const TextStyle(
                   color: Colors.white, fontSize: 25, fontFamily: 'Bangers'),
             )
