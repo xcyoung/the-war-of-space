@@ -40,3 +40,10 @@ class BombSupplyAdd extends GameStatusEvent {
   @override
   List<Object?> get props => [];
 }
+
+class BombSupplyUse extends GameStatusEvent {
+  const BombSupplyUse();
+
+  @override
+  List<Object?> get props => [];
+}

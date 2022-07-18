@@ -131,9 +131,7 @@ abstract class Enemy extends SpriteAnimationGroupComponent<EnemyState>
   double speed;
 
   set _enemyState(EnemyState state) {
-    if (state == EnemyState.hit) {
-      animations?[state]?.reset();
-    }
+    animations?[state]?.reset();
     current = state;
   }
 
@@ -191,6 +189,11 @@ abstract class Enemy extends SpriteAnimationGroupComponent<EnemyState>
         }
       }
     }
+  }
+
+  void forcedDestruction() {
+    _enemyState = EnemyState.down;
+    gameRef.enemyDestroy(enemyType());
   }
 }
 

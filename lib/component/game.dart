@@ -38,6 +38,16 @@ class GameStatusController extends Component with HasGameRef<SpaceGame> {
         });
       }
     }));
+    add(FlameBlocListener<GameStatusBloc, GameStatusState>(
+        listenWhen: (pState, nState) {
+      return pState.bombSupplyNumber > nState.bombSupplyNumber;
+    }, onNewState: (state) {
+      if (parent == null) return;
+
+      parent!.children.whereType<Enemy>().forEach((element) {
+        element.forcedDestruction();
+      });
+    }));
   }
 }
 

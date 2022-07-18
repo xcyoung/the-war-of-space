@@ -25,5 +25,11 @@ class GameStatusBloc extends Bloc<GameStatusEvent, GameStatusState> {
     on<BombSupplyAdd>((event, emit) {
       emit(state.copyWith(bombSupplyNumber: state.bombSupplyNumber + 1));
     });
+
+    on<BombSupplyUse>((event, emit) {
+      if (state.bombSupplyNumber > 0) {
+        emit(state.copyWith(bombSupplyNumber: state.bombSupplyNumber - 1));
+      }
+    });
   }
 }
