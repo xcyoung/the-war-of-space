@@ -1,16 +1,13 @@
 # the_war_of_space
 
-A new Flutter application.
+A airplane game based on [Flame](https://github.com/flame-engine/flame).
 
-## Getting Started
+## Feature
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Based on Bloc to manage global game state. Referenced from [flame_bloc](https://github.com/flame-engine/flame/tree/main/packages/flame_bloc).
+- Player can drag and shoot the enemy.
+- Support for updating bullet by getting supply.
+- Support for recording scores and hp.
+- Support for using bomb supply.
+- Multiple enemy types.
+- Menu to reset the game.
